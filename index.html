@@ -18,18 +18,43 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
+
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
+    <script type="text/javascript">
       var socket = io();
+      var isInatialized = false;
+
+      // Send a new message
       $('form').submit(function(){
         socket.emit('chat message', $('#m').val());
         $('#m').val('');
         return false;
       });
+
+      // get new message
       socket.on('chat message', function(msg){
         $('#messages').append($('<li>').text(msg));
       });
+
+
+      // when page is loaded, get all messages
+      $( document ).ready(function() {
+        socket.emit('get messages', $('#m').val());
+      });
+
+      // update screen with all messages
+      socket.on('get messages', function(msg){
+        if (!isInatialized){
+          isInatialized = true;
+          $('#messages').html("");
+          for(var x=0; x<msg.length; x++) {
+            $('#messages').append($('<li>').text(msg[x].txt));
+          }
+        }
+      });
+
+
     </script>
   </body>
 </html>
